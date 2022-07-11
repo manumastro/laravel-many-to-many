@@ -61,9 +61,13 @@ class PostController extends Controller
         $data = $request->all();
         $new_post = new Post();
         $data['slug'] = Post::slugGenerator($data['title']);
-        //dd($data);
         $new_post->fill($data);
         $new_post->save();
+
+        if(array_key_exists('tags', $data)){
+            $new_post->tags()->attach($data['tags']);
+        }
+
         return redirect()->route('admin.posts.show', $new_post);
 
     }
@@ -89,10 +93,11 @@ class PostController extends Controller
     public function edit($id)
     {
         $categories = Category::all();
+        $tags = Tag::all();
 
         $post = Post::find($id);
         if($post){
-            return view('admin.posts.edit', compact('post', 'categories'));
+            return view('admin.posts.edit', compact('post', 'categories', 'tags'));
         }
         abort(404);
     }
@@ -121,7 +126,19 @@ class PostController extends Controller
         );
 
         $data = $request->all();
+
+        if ($data['title'] != $post->title) {
+            $data['slug'] = Post::slugGenerator($data['title']);
+        }
+
         $post->update($data);
+
+        if(array_key_exists('tags', $data)){
+            $post->tags()->sync($data['tags']);
+        }else{
+            $post->tags()->detach();
+        }
+
         return redirect()->route('admin.posts.show', $post);
 
     }
