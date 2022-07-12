@@ -8,6 +8,12 @@
       <h3>Categoria: {{ $post->category->name }}</h3>
     @endif
 
+    @if ($post->tags)
+      @foreach ($post->tags as $tag)
+        <h4>Tags: {{ $tag->name }}</h4>
+      @endforeach
+    @endif
+
     <p>
       {{ $post->content }}
     </p>
